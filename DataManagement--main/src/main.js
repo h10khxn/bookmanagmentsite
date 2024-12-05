@@ -6,7 +6,6 @@ const html = document.documentElement;
 // Check system preference
 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-// Set initial theme based on localStorage or system preference
 let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && systemPrefersDark);
 updateTheme();
 
