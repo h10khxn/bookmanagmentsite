@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animation-delay-200 {
+    animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+    animation-delay: 0.4s;
+}
+
+/* Cards Animation */
+.feature-card, .stat-card {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.feature-card.animate, .stat-card.animate {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Theme Transition */
+:root {
+    --transition-duration: 0.3s;
+}
+
+.theme-transition,
+.theme-transition * {
+    transition: background-color var(--transition-duration) ease,
+                border-color var(--transition-duration) ease,
+                color var(--transition-duration) ease,
+                fill var(--transition-duration) ease,
+                stroke var(--transition-duration) ease,
+                opacity var(--transition-duration) ease;
+}
+
+/* Glass Morphism */
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode overrides */
+.dark ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
