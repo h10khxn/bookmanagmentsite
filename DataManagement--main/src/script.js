@@ -1,13 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch the books list when the page loads
+    
     fetchBooks();
     startPolling();
-    // Search functionality
     const searchInput = document.getElementById('search');
     searchInput.addEventListener('input', function() {
         filterTable(searchInput.value);
     });
-    // Set up polling to fetch the book list every 5 seconds
+    // Polling to fetch the book list 
     setInterval(fetchBooks, 5000);  // 5000ms = 5 seconds
 
     // Handle form submission for adding books
@@ -15,29 +14,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const isbnInput = document.getElementById('isbn');
     const isbnError = document.getElementById('isbn-error');
     
-    // Listen for user input to hide error if ISBN is corrected
+    
     isbnInput.addEventListener('input', function() {
-        isbnError.style.display = 'none'; // Hide error message as user corrects the input
+        isbnError.style.display = 'none'; 
     });
 
     addBookForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Validate ISBN
+       
         const isbn = isbnInput.value.trim();
 
         if (!validateISBN(isbn)) {
-            isbnError.style.display = 'inline'; // Show error message
+            isbnError.style.display = 'inline'; 
             return;
         } else {
-            isbnError.style.display = 'none'; // Hide error message
+            isbnError.style.display = 'none'; 
         }
 
         // Get form data
         const formData = new FormData(addBookForm);
-        formData.append('action', 'add'); // Add action type for adding books
+        formData.append('action', 'add'); 
 
-        // Sending data to server using fetch
         fetch('book_inventory.php', {
             method: 'POST',
             body: formData
@@ -46,8 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 alert(data.message);
-                addBookToTable(data.book);  // Add new book to the table
-                addBookForm.reset(); // Clear the form after successful submission
+                addBookToTable(data.book);  
+                addBookForm.reset(); 
             } else {
                 alert('Error: ' + data.message);
             }
@@ -59,18 +57,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-let books = [];  // Store the latest list of books
-let pollingActive = true;  // Track polling state (active or paused)
-let pollInterval = null; // Variable to store setInterval ID for polling
+let books = [];  
+let pollingActive = true;  
+let pollInterval = null; 
 
 // Fetch all books from the database and display them
 function fetchBooks() {
     fetch('book_inventory.php')
     .then(response => response.json())
     .then(data => {
-        books = data;  // Store fetched books data
+        books = data;  
         if (!isSearching()) {
-            renderBooks(books);  // Only render the books if not searching
+            renderBooks(books);  
         }
     })
     .catch(error => {
@@ -82,9 +80,9 @@ function fetchBooks() {
 // Render books in the table
 function renderBooks(books) {
     const tableBody = document.querySelector('#book-table tbody');
-    tableBody.innerHTML = ''; // Clear existing table rows
+    tableBody.innerHTML = ''; 
 
-    // Add each book to the table
+    
     books.forEach(book => {
         addBookToTable(book);
     });
@@ -106,7 +104,7 @@ function addBookToTable(book) {
             <button class="delete-btn bg-red-500 text-white py-1 px-2 rounded-md cursor-pointer hover:bg-red-600" data-id="${book.id}">Delete</button>
         </td>
     `;
-    tableBody.appendChild(row); // Add new row to the table body
+    tableBody.appendChild(row); 
 }
 
 // Filter the table by search query
@@ -118,21 +116,24 @@ function filterTable(query) {
         const title = cells[1].textContent.toLowerCase();
         const author = cells[2].textContent.toLowerCase();
         const genre = cells[3].textContent.toLowerCase();
+        const isbn = cells[5].textContent.toLowerCase();  
 
-        const text = title + " " + author + " " + genre;
+        
+        const text = title + " " + author + " " + genre + " " + isbn;
 
         if (text.toLowerCase().includes(query.toLowerCase())) {
-            row.style.display = '';  // Show row
+            row.style.display = '';  
         } else {
-            row.style.display = 'none';  // Hide row
+            row.style.display = 'none'; 
         }
     });
 }
 
+
 // Start polling
 function startPolling() {
     if (!pollInterval) {
-        pollInterval = setInterval(fetchBooks, 5000);  // Fetch data every 5 seconds
+        pollInterval = setInterval(fetchBooks, 5000);  
     }
 }
 
@@ -147,27 +148,27 @@ function stopPolling() {
 // Check if the user is searching
 function isSearching() {
     const searchQuery = document.getElementById('search').value.trim();
-    return searchQuery !== '';  // Return true if there is a search query
+    return searchQuery !== '';  
 }
 
-// Set up event listener for search input
+
 document.getElementById('search').addEventListener('input', function() {
     const query = this.value.trim();
 
-    // Stop polling if searching
+    // Stop polling if searching on conditional
     if (query !== '') {
         stopPolling();
-        filterTable(query);  // Filter the table based on the search query
+        filterTable(query);  
     } else {
-        renderBooks(books);  // If search is cleared, render the full table again
-        startPolling();  // Resume polling
+        renderBooks(books);  
+        startPolling();  
     }
 });
 
 
 
 // Start polling when the page loads
-pollingInterval = setInterval(fetchBooks, 5000);  // 5000ms = 5 seconds
+pollingInterval = setInterval(fetchBooks, 5000);  
 document.getElementById('export-csv').addEventListener('click', function() {
     exportTableToCSV('book_inventory.csv');
 });
@@ -175,40 +176,35 @@ document.getElementById('export-csv').addEventListener('click', function() {
 // Export table data to CSV function
 function exportTableToCSV(filename) {
     let csv = [];
-    const rows = document.querySelectorAll('#book-table tbody tr');  // Only target body rows, exclude header
+    const rows = document.querySelectorAll('#book-table tbody tr');  
 
-    // Add headers to CSV
+    
     const headers = document.querySelectorAll('#book-table thead th');
     let headerData = [];
     headers.forEach(header => {
         headerData.push(header.textContent.trim());
     });
-    csv.push(headerData.join(','));  // Add headers as the first row
+    csv.push(headerData.join(','));  
 
-    // Iterate through each row of the table (excluding header)
     rows.forEach(row => {
-        const cells = row.querySelectorAll('td');  // Only target actual data cells, not buttons
+        const cells = row.querySelectorAll('td');  
         let rowData = [];
 
-        // Loop through the cells and add them to rowData (skip the last cell with buttons)
-        for (let i = 0; i < cells.length - 1; i++) {  // Skip the last column (buttons)
-            rowData.push(cells[i].textContent.trim());  // Get text content and add to row data
+        for (let i = 0; i < cells.length - 1; i++) {  
+            rowData.push(cells[i].textContent.trim());  
         }
         
-        // Only push rows with actual book data (excluding button columns)
-        csv.push(rowData.join(','));  // Join row data with commas
+        csv.push(rowData.join(','));  
     });
 
-    // Create CSV content
     const csvContent = csv.join('\n');
     
-    // Create a link to download CSV
+    // Link to download csv
     const link = document.createElement('a');
     link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
     link.download = filename;
     link.style.display = 'none';
 
-    // Append link, trigger click, and remove link
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -219,12 +215,9 @@ function exportTableToCSV(filename) {
 function addBookToTable(book) {
     const tableBody = document.querySelector('#book-table tbody');
     const row = document.createElement('tr');
-    
-    // Updated Zebra striping and transparency
-    // If it's too opaque, adjust the alpha value, e.g., 'bg-white/5' or 'bg-slate-800/10'
+
     row.classList.add('bg-white/5', 'border-b', 'border-white/10');
 
-    // Create the row content
     row.innerHTML = `
         <td>${book.id}</td>
         <td>${book.title}</td>
@@ -245,24 +238,26 @@ function addBookToTable(book) {
             </button>
         </td>
     `;
-    
-    tableBody.appendChild(row); // Add new row to the table body
 
-    // Attach event listener to the Edit button
+    tableBody.appendChild(row);
+
     row.querySelector('.edit-btn').addEventListener('click', function() {
         editBook(book);
     });
 
-    // Attach event listener to the Delete button
     row.querySelector('.delete-btn').addEventListener('click', function() {
         deleteBook(book.id);
     });
 }
 
-
-// Validate ISBN (only 13 digits allowed)
+// Validate special characters in text input
+function validateTextInput(input) {
+    const validTextPattern = /^[a-zA-Z0-9\s'.,!?-]*$/; 
+    return validTextPattern.test(input);
+}
+// Validate isbn
 function validateISBN(isbn) {
-    const isbnPattern = /^\d{13}$/;  // Check for exactly 13 digits
+    const isbnPattern = /^\d{13}$/;  
     return isbnPattern.test(isbn);
 }
 
@@ -271,7 +266,6 @@ function editBook(book) {
     const modal = document.getElementById('edit-book-form');
     modal.classList.remove('hidden'); // Show the modal
     
-    // Fill the form inputs with current book data
     document.getElementById('edit-book-id').value = book.id;
     document.getElementById('edit-title').value = book.title;
     document.getElementById('edit-author').value = book.author;
@@ -279,28 +273,29 @@ function editBook(book) {
     document.getElementById('edit-publication_date').value = book.publication_date;
     document.getElementById('edit-isbn').value = book.isbn;
 
-    // Handle form submission for editing a book
     const editBookForm = document.getElementById('edit-book-modal-form');
     const closeEditFormButton = document.getElementById('close-edit-form');
     
-    // Add event listener to handle form submission
     editBookForm.addEventListener('submit', function(e) {
         e.preventDefault();
-
-        // Get updated values
+    
         const updatedTitle = document.getElementById('edit-title').value.trim();
         const updatedAuthor = document.getElementById('edit-author').value.trim();
         const updatedGenre = document.getElementById('edit-genre').value.trim();
         const updatedPublicationDate = document.getElementById('edit-publication_date').value;
         const updatedIsbn = document.getElementById('edit-isbn').value.trim();
-
-        // Validate ISBN
+    
+        if (!validateTextInput(updatedTitle) || !validateTextInput(updatedAuthor) || !validateTextInput(updatedGenre)) {
+            alert("Title, Author, and Genre can contain letters, numbers, spaces, and some special characters (e.g., apostrophes, commas).");
+            return;
+        }
+    
         if (!validateISBN(updatedIsbn)) {
             alert('Invalid ISBN. It must be 13 digits.');
             return;
         }
-
-        // Send update request to server
+    
+        // Send the updated data to the server
         fetch('book_inventory.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -310,8 +305,8 @@ function editBook(book) {
         .then(data => {
             if (data.status === 'success') {
                 alert('Book updated successfully!');
-                modal.classList.add('hidden');  // Hide the modal after successful update
-                fetchBooks();  // Fetch the updated book list
+                modal.classList.add('hidden'); 
+                fetchBooks();  
             } else {
                 alert('Error: ' + data.message);
             }
@@ -322,15 +317,14 @@ function editBook(book) {
         });
     });
 
-    // Add event listener to close the modal
+   
     closeEditFormButton.addEventListener('click', function() {
-        modal.classList.add('hidden'); // Hide the modal when clicking close button
+        modal.classList.add('hidden');
     });
 
-    // Optional: Close modal when clicking outside the modal
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
-            modal.classList.add('hidden'); // Close modal if clicked outside
+            modal.classList.add('hidden'); 
         }
     });
 }
@@ -349,7 +343,7 @@ function deleteBook(bookId) {
         .then(data => {
             if (data.status === 'success') {
                 alert(data.message);
-                fetchBooks(); // Refresh the book list
+                fetchBooks(); 
             } else {
                 alert('Error: ' + data.message);
             }

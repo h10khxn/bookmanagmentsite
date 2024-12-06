@@ -3,7 +3,6 @@ const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.querySelector('.theme-toggle-icon');
 const html = document.documentElement;
 
-// Check system preference
 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && systemPrefersDark);
@@ -29,7 +28,6 @@ themeToggle.addEventListener('click', () => {
     updateTheme();
 });
 
-// Watch for system theme changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     if (!localStorage.getItem('theme')) {
         isDark = e.matches;
@@ -45,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mobileMenu.classList.toggle('hidden');
     });
 });
-// Intersection Observer for animations
+// Intersection observer for animations
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -60,7 +58,7 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe elements
+// Elements
 document.querySelectorAll('.feature-card, .stat-card').forEach(card => {
     observer.observe(card);
 });
@@ -75,7 +73,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 behavior: 'smooth',
                 block: 'start'
             });
-            // Close mobile menu if open
+            
             if (mobileMenu) {
                 mobileMenu.classList.add('hidden');
             }

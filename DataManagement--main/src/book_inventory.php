@@ -1,13 +1,14 @@
 <?php
-$conn = new mysqli('localhost', 'root', '', 'book_inventory');
+$conn = new mysqli('localhost', 'root', '', 'book_inventory'); 
 
+// Check the database connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-header('Content-Type: application/json');  // Set header to JSON
+header('Content-Type: application/json');  
 
-// Handle Add Book Request
+// Handling request to add book
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["action"] == 'add') {
     $title = $_POST["title"];
     $author = $_POST["author"];
@@ -15,13 +16,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
     $publication_date = $_POST["publication_date"];
     $isbn = $_POST["isbn"];
 
-    // Insert book into the database
-    $sql = "INSERT INTO inventory (title, author, genre, publication_date, isbn) 
-            VALUES ('$title', '$author', '$genre', '$publication_date', '$isbn')";
+    // Use prepared statement to insert book data into the database
+    $stmt = $conn->prepare("INSERT INTO inventory (title, author, genre, publication_date, isbn) 
+                            VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $title, $author, $genre, $publication_date, $isbn);
 
-    if ($conn->query($sql) === TRUE) {
-        // Get the ID of the newly inserted book
-        $book_id = $conn->insert_id;
+    if ($stmt->execute()) {
+        $book_id = $stmt->insert_id;
 
         // Send the book data along with the success status
         echo json_encode([
@@ -39,15 +40,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
     } else {
         echo json_encode([
             'status' => 'error',
-            'message' => 'Error: ' . $conn->error
+            'message' => 'Error: ' . $stmt->error
         ]);
     }
 
-    exit; // Make sure to stop execution here for POST requests.
+    $stmt->close(); 
+    exit;
 }
 
 // Handle Edit Book Request
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["action"] == 'update') {  // Corrected 'edit' to 'update'
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["action"] == 'update') { 
     $id = $_POST["id"];
     $title = $_POST["title"];
     $author = $_POST["author"];
@@ -55,12 +57,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
     $publication_date = $_POST["publication_date"];
     $isbn = $_POST["isbn"];
 
-    // Update book details in the database
-    $sql = "UPDATE inventory 
-            SET title='$title', author='$author', genre='$genre', publication_date='$publication_date', isbn='$isbn' 
-            WHERE id=$id";
+    // Use prepared statement to update book details in the database
+    $stmt = $conn->prepare("UPDATE inventory 
+                            SET title=?, author=?, genre=?, publication_date=?, isbn=? 
+                            WHERE id=?");
+    $stmt->bind_param("sssssi", $title, $author, $genre, $publication_date, $isbn, $id);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute()) {
         echo json_encode([
             'status' => 'success',
             'message' => 'Book updated successfully',
@@ -76,10 +79,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
     } else {
         echo json_encode([
             'status' => 'error',
-            'message' => 'Error: ' . $conn->error
+            'message' => 'Error: ' . $stmt->error
         ]);
     }
 
+    $stmt->close(); 
     exit;
 }
 
@@ -87,10 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["action"] == 'delete') {
     $id = $_POST["id"];
 
-    // Delete book from the database
-    $sql = "DELETE FROM inventory WHERE id=$id";
+    // Use prepared statement to delete the book from the database
+    $stmt = $conn->prepare("DELETE FROM inventory WHERE id=?");
+    $stmt->bind_param("i", $id);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute()) {
         echo json_encode([
             'status' => 'success',
             'message' => 'Book deleted successfully'
@@ -98,10 +103,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["a
     } else {
         echo json_encode([
             'status' => 'error',
-            'message' => 'Error: ' . $conn->error
+            'message' => 'Error: ' . $stmt->error
         ]);
     }
 
+    $stmt->close(); // Close the statement
     exit;
 }
 
@@ -116,6 +122,6 @@ if ($result->num_rows > 0) {
     }
 }
 
-echo json_encode($books); // Return books as JSON
+echo json_encode($books); 
 $conn->close();
 ?>
